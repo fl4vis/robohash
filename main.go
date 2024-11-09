@@ -28,11 +28,6 @@ type RoboHash struct {
 }
 
 func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
-	// Create SHA-512
-	hash := sha512.New()
-	hash.Write([]byte(input))
-	hexDigest := hex.EncodeToString(hash.Sum(nil))
-
 	/*
 		Start [Iter] at 4, so earlier is reserved
 		0 = Color
@@ -42,14 +37,21 @@ func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
 	*/
 
 	robohash := &RoboHash{
-		Format:    "png",
-		HexDigest: hexDigest,
-		Iter:      4,
+		Format: "png",
+		Iter:   4,
 	}
 
+	// Optionally remove an images extension before hashing.
 	if ignoreExt {
-		robohash.RemoveExts(input)
+		input = robohash.RemoveExts(input)
 	}
+
+	// Create SHA-512
+	hash := sha512.New()
+	hash.Write([]byte(input))
+	hexDigest := hex.EncodeToString(hash.Sum(nil))
+
+	robohash.HexDigest = hexDigest
 
 	robohash.CreateHashes(hashCount)
 	robohash.ResourceDir, _ = filepath.Abs(".")
@@ -119,14 +121,32 @@ func (r *RoboHash) GetListOfFiles(path string) []string {
 	return chosenFiles
 }
 
-func (r *RoboHash) RemoveExts(str string) {
-	if ext := filepath.Ext(str); ext != "" {
-		str = strings.TrimSuffix(str, ext)
-		r.Format = ext[1:]
-		if r.Format == "jpg" {
-			r.Format = "jpeg"
+func (r *RoboHash) RemoveExts(str string) string {
+	// Sets the string, to create the Robohash
+
+	/*
+	  If the user hasn't disabled it, we will detect image extensions, such as .png, .jpg, etc.
+	  We'll remove them from the string before hashing.
+	  This ensures that /Bear.png and /Bear.bmp will send back the same image, in different formats.
+	*/
+
+	str = strings.ToLower(str)
+	suffixes := []string{".png", ".gif", ".jpg", ".bmp", ".jpeg", ".ppm", ".datauri"}
+
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(str, suffix) {
+			startIndex := strings.LastIndex(str, suffix)
+			format := str[startIndex:]
+
+			if format == ".jpg" {
+				format = ".jpeg"
+			}
+
+			str = str[0:startIndex] + format
 		}
 	}
+
+	return str
 }
 
 func Overlay(bg, fg image.Image) image.Image {
@@ -234,8 +254,6 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 		return strings.Split(roboparts[i], "#")[1] < strings.Split(roboparts[j], "#")[1]
 	})
 
-	// *************************
-
 	background := ""
 	if bgset != "" {
 		path := r.ResourceDir + "/backgrounds/" + bgset
@@ -281,8 +299,8 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 }
 
 func main() {
-	robo := NewRoboHash("example", 11, true)
-	robotImage := robo.Assemble("set1", "blue", "png", "bg2", 300, 300)
+	robo := NewRoboHash("tesjpg", 11, true)
+	robotImage := robo.Assemble("set4", "", "png", "", 300, 300)
 
 	file, err := os.Create("robot.png")
 	if err != nil {
