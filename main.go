@@ -168,7 +168,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 	  If they don't set one, take the first entry from sets above.
 	*/
 
-	if roboset == "any" || roboset == "" {
+	if roboset == "any" {
 		roboset = r.Sets[r.HashArray[1]%len(r.Sets)]
 	} else {
 
@@ -211,9 +211,12 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 	}
 
 	// If they specified a background, ensure it's legal, then give it to them.
-	if bgset == "any" || bgset == "" {
+	switch bgset {
+	case "any":
 		bgset = r.BgSets[r.HashArray[2]%len(r.BgSets)]
-	} else {
+	case "":
+		bgset = ""
+	default:
 
 		found := false
 
