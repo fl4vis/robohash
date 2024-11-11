@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha512"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"log"
 	"os"
@@ -25,6 +30,7 @@ type RoboHash struct {
 	Sets        []string
 	BgSets      []string
 	Colors      []string
+	Img         image.Image
 }
 
 func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
@@ -70,6 +76,7 @@ func (r *RoboHash) CreateHashes(count int) {
 		Essentially, it splits our SHA/MD5/etc into X parts.
 	*/
 
+	// Get 1/numblocks of the hash
 	blockSize := len(r.HexDigest) / count
 
 	for i := 0; i < count; i++ {
@@ -81,6 +88,12 @@ func (r *RoboHash) CreateHashes(count int) {
 	}
 
 	// Double the array size
+	/*
+	  Workaround for adding more sets in 2019.
+	  We run out of blocks, because we use some for each set, whether it's called or not.
+	  I can't easily change this without invalidating every hash so far :/
+	  This shouldn't reduce the security since it should only draw from one set of these in practice.
+	*/
 	r.HashArray = append(r.HashArray, r.HashArray...)
 }
 
@@ -103,15 +116,24 @@ func (r *RoboHash) ListDir(path string) []string {
 }
 
 func (r *RoboHash) GetListOfFiles(path string) []string {
+	/*
+	  Go through each subdirectory of `path`, and choose one file from each to use in our hash.
+	  Continue to increase self.iter, so we use a different 'slot' of randomness each time.
+	*/
 	var chosenFiles []string
+
+	// Get a list of all subdirectories
 	directories := r.ListDir(path)
 
+	// Go through each directory in the list, and choose one file from each.
+	// Add this file to our master list of robotparts.
 	for _, dir := range directories {
 		dirPath := filepath.Join(path, dir)
 		files, _ := filepath.Glob(filepath.Join(dirPath, "*"))
 		sort.Strings(files)
 
 		if len(files) > 0 {
+			// Use some of our hash bits to choose which file
 			element := r.HashArray[r.Iter] % len(files)
 			chosenFiles = append(chosenFiles, files[element])
 			r.Iter++
@@ -156,7 +178,7 @@ func Overlay(bg, fg image.Image) image.Image {
 	return output
 }
 
-func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, sizey int) image.Image {
+func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, sizey int) *RoboHash {
 	/*
 	   Build our Robot!
 	   Returns the robot image itself.
@@ -297,22 +319,96 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 		roboImg = Overlay(bgImg, roboImg)
 	}
 
-	finalImg := imaging.Resize(roboImg, sizex, sizey, imaging.Lanczos)
-	return finalImg
+	// Flatten if BMP or JPEG
+	if format == "bmp" || format == "jpeg" {
+		rect := roboImg.Bounds()
+		flattenedImg := image.NewRGBA(rect)
+		draw.Draw(flattenedImg, rect, &image.Uniform{color.White}, image.Point{}, draw.Src)
+		draw.Draw(flattenedImg, rect, roboImg, image.Point{}, draw.Over)
+		roboImg = flattenedImg
+	}
+
+	// Resize final image and assign it to r.Img
+	r.Img = imaging.Resize(roboImg, sizex, sizey, imaging.Lanczos)
+	r.Format = format
+
+	return r
 }
 
 func main() {
 	robo := NewRoboHash("tesjpg", 11, true)
-	robotImage := robo.Assemble("set4", "", "png", "", 300, 300)
+	robotImage := robo.Assemble("any", "", "datauri", "", 300, 300)
 
-	file, err := os.Create("robot.png")
-	if err != nil {
+	outputFile := fmt.Sprintf("robot.%s", robo.Format)
+	if err := saveImage(outputFile, robo.Format, robotImage.Img); err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
-	png.Encode(file, robotImage)
 
-	fmt.Println("Robot image generated as robot.png")
+	fmt.Printf("Robot image generated as %s\n", outputFile)
+}
+
+// saveImage saves an image.Image in the specified format
+func saveImage(filename, format string, img image.Image) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	switch format {
+	case "png":
+		return png.Encode(file, img)
+	case "jpeg", "jpg":
+		options := &jpeg.Options{Quality: 90}
+		return jpeg.Encode(file, img, options)
+	case "gif":
+		return gif.Encode(file, img, nil)
+	case "bmp":
+		return encodeBMP(file, img) // Ensure `encodeBMP` function is defined
+	case "ppm":
+		return encodePPM(file, img) // Ensure `encodePPM` function is defined
+	case "datauri":
+		return saveDataURI(file, img)
+	default:
+		return fmt.Errorf("unsupported format: %s", format)
+	}
+}
+
+// encodeBMP encodes an image as BMP format. Ensure you have an implementation.
+func encodeBMP(w *os.File, img image.Image) error {
+	// Custom BMP encoding logic or use an external package
+	return fmt.Errorf("BMP encoding not yet implemented")
+}
+
+// encodePPM encodes an image in the PPM (Portable Pixmap) format.
+func encodePPM(w *os.File, img image.Image) error {
+	bounds := img.Bounds()
+	_, err := fmt.Fprintf(w, "P6\n%d %d\n255\n", bounds.Dx(), bounds.Dy())
+	if err != nil {
+		return err
+	}
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			if _, err := w.Write([]byte{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// saveDataURI encodes the image to a base64 Data URI and writes it to the file.
+func saveDataURI(file *os.File, img image.Image) error {
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil { // Encode as PNG for data URI
+		return err
+	}
+	base64Data := base64.StdEncoding.EncodeToString(buf.Bytes())
+	dataURI := "data:image/png;base64," + base64Data
+	_, err := file.WriteString(dataURI)
+	return err
 }
 
 /*
