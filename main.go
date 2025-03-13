@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha512"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -173,6 +174,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 	} else {
 
 		found := false
+		roboset = "set" + roboset
 
 		for _, set := range r.Sets {
 			if set == roboset {
@@ -219,6 +221,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 	default:
 
 		found := false
+		bgset = "bg" + bgset
 
 		for _, bg := range r.BgSets {
 			if bgset == bg {
@@ -297,8 +300,8 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 		roboImg = Overlay(bgImg, roboImg)
 	}
 
-	// Flatten if BMP or JPEG
-	if format == "bmp" || format == "jpeg" {
+	// Flatten if JPEG
+	if format == "jpeg" {
 		rect := roboImg.Bounds()
 		flattenedImg := image.NewRGBA(rect)
 		draw.Draw(flattenedImg, rect, &image.Uniform{color.White}, image.Point{}, draw.Src)
@@ -306,7 +309,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 		roboImg = flattenedImg
 	}
 
-	// Resize final image and assign it to r.Img
+	// Resize final image formatand assign it to r.Img
 	r.Img = imaging.Resize(roboImg, sizex, sizey, imaging.Lanczos)
 	r.Format = format
 
@@ -314,15 +317,41 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 }
 
 func main() {
-	robo := NewRoboHash("tepg", 11, true)
-	robotImage := robo.Assemble("set1", "", "png", "", 300, 300)
+	extension := utils.ExtensionsType{
+		ValidValues: []string{"png", "jpg", "jpeg", "gif", "ppm", "datauri"},
+		Value:       "png",
+	}
 
-	outputFile := fmt.Sprintf("robot.%s", robo.Format)
+	// Flags
+	input := flag.String("input", "", "String to be hashed")
+	hashSlots := flag.Int("slots", 11, "Number of slots hash will be divided")
+	ignoreExt := flag.Bool("ignoreExt", true, "Removes any extension of the input before hashing")
+
+	set := flag.String("set", "any", "[1,5] || any")
+	color := flag.String("color", "", "Only when set1 selected -> [blue, brown, green, grey,  orange, pink, purple, red, white, yellow]")
+	flag.Var(&extension, "extension", "[png, jpg, jpeg, gif, ppm, datauri]")
+	bgset := flag.String("bgset", "", "[1,2] || any")
+	sizex := flag.Int("sizex", 300, "size x")
+	sizey := flag.Int("sizey", 300, "size y")
+
+	flag.Parse()
+
+	log.SetFlags(0)
+	if *input == "" {
+		log.Fatalf("Empty input value not allowed")
+	}
+
+	if *hashSlots > 30 {
+		log.Fatalf("Maxium number of recommended slots reached: %d", *hashSlots)
+	}
+
+	robo := NewRoboHash(*input, *hashSlots, *ignoreExt)
+	robotImage := robo.Assemble(*set, *color, extension.Value, *bgset, *sizex, *sizey)
+
+	outputFile := fmt.Sprintf("%s.%s", *input, robo.Format)
 	if err := utils.SaveImage(outputFile, robo.Format, robotImage.Img); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("Robot image generated as %s\n", outputFile)
 }
 
 /*

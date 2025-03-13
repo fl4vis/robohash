@@ -27,21 +27,13 @@ func SaveImage(filename, format string, img image.Image) error {
 		return jpeg.Encode(file, img, options)
 	case "gif":
 		return gif.Encode(file, img, nil)
-	case "bmp":
-		return encodeBMP(file, img) // Ensure `encodeBMP` function is defined
 	case "ppm":
-		return encodePPM(file, img) // Ensure `encodePPM` function is defined
+		return encodePPM(file, img)
 	case "datauri":
-		return saveDataURI(file, img)
+		return saveDataURI(img)
 	default:
 		return fmt.Errorf("unsupported format: %s", format)
 	}
-}
-
-// encodeBMP encodes an image as BMP format. Ensure you have an implementation.
-func encodeBMP(w *os.File, img image.Image) error {
-	// Custom BMP encoding logic or use an external package
-	return fmt.Errorf("BMP encoding not yet implemented")
 }
 
 // encodePPM encodes an image in the PPM (Portable Pixmap) format.
@@ -64,13 +56,15 @@ func encodePPM(w *os.File, img image.Image) error {
 }
 
 // saveDataURI encodes the image to a base64 Data URI and writes it to the file.
-func saveDataURI(file *os.File, img image.Image) error {
+func saveDataURI(img image.Image) error {
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, img); err != nil { // Encode as PNG for data URI
 		return err
 	}
 	base64Data := base64.StdEncoding.EncodeToString(buf.Bytes())
 	dataURI := "data:image/png;base64," + base64Data
-	_, err := file.WriteString(dataURI)
-	return err
+	fmt.Println(dataURI)
+	// _, err := file.WriteString(dataURI)
+	// return err
+	return nil
 }
