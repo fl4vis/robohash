@@ -57,7 +57,17 @@ func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
 	robohash.HexDigest = hexDigest
 
 	robohash.CreateHashes(hashCount)
-	robohash.ResourceDir, _ = filepath.Abs("./img/robo/")
+
+	// Get the absolute path to the executable
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	exeDir := filepath.Dir(exePath)
+
+	resourceDir := filepath.Join(exeDir, "img", "robo")
+	robohash.ResourceDir = resourceDir
 
 	// Load Directories
 	robohash.Sets = utils.ListDir(filepath.Join(robohash.ResourceDir, "sets"))
