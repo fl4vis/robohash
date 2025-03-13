@@ -4,7 +4,7 @@
   <a href="https://choosealicense.com/licenses/mit/">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
   </a>
-  <img src="https://img.shields.io/badge/Go-%20blue?logo=go" alt="Go">
+  <img src="https://img.shields.io/badge/Go-%20blue?logo=go" alt="Go"  style="margin-left: 10px;">
 </p>
 
 This project is a port of [Robohash](https://github.com/e1ven/Robohash) to Go. Follow the steps below to install, build, and package the project.
