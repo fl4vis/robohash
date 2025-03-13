@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
----
+This project is a port of [Robohash](https://github.com/e1ven/Robohash) to Go. Follow the steps below to install, build, and package the project.
 
 <br>
 
