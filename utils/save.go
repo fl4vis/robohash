@@ -13,6 +13,15 @@ import (
 
 // saveImage saves an image.Image in the specified format
 func SaveImage(filename, format string, img image.Image) error {
+	if format == "datauri" {
+		dataURI, err := saveDataURI(img)
+		if err != nil {
+			return err
+		}
+		fmt.Println(dataURI)
+		return nil
+	}
+
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -29,8 +38,6 @@ func SaveImage(filename, format string, img image.Image) error {
 		return gif.Encode(file, img, nil)
 	case "ppm":
 		return encodePPM(file, img)
-	case "datauri":
-		return saveDataURI(img)
 	default:
 		return fmt.Errorf("unsupported format: %s", format)
 	}
@@ -56,15 +63,14 @@ func encodePPM(w *os.File, img image.Image) error {
 }
 
 // saveDataURI encodes the image to a base64 Data URI and writes it to the file.
-func saveDataURI(img image.Image) error {
+func saveDataURI(img image.Image) (string, error) {
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, img); err != nil { // Encode as PNG for data URI
-		return err
+		return "", err
 	}
 	base64Data := base64.StdEncoding.EncodeToString(buf.Bytes())
 	dataURI := "data:image/png;base64," + base64Data
-	fmt.Println(dataURI)
 	// _, err := file.WriteString(dataURI)
 	// return err
-	return nil
+	return dataURI, nil
 }
