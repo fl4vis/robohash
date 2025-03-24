@@ -3,4 +3,4 @@ build/
 *.jpg
 *.ppm
 *.jpeg
-
+.idea
