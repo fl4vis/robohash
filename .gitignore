@@ -1,2 +1,4 @@
 build/
 .idea
+# Added by goreleaser init:
+dist/
