@@ -2,15 +2,15 @@ package main
 
 import (
 	"crypto/sha512"
+	"embed"
 	"encoding/hex"
 	"flag"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"io/fs"
 	"log"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
@@ -18,16 +18,19 @@ import (
 	"github.com/fl4vis/robohash/utils"
 )
 
+//go:embed img/robo/*
+var Assets embed.FS
+
 type RoboHash struct {
-	Format      string
-	HexDigest   string
-	HashArray   []int
-	Iter        int
-	ResourceDir string
-	Sets        []string
-	BgSets      []string
-	Colors      []string
-	Img         image.Image
+	Format    string
+	HexDigest string
+	HashArray []int
+	Iter      int
+	FS        fs.FS
+	Sets      []string
+	BgSets    []string
+	Colors    []string
+	Img       image.Image
 }
 
 func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
@@ -42,6 +45,7 @@ func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
 	robohash := &RoboHash{
 		Format: "png",
 		Iter:   4,
+		FS:     Assets,
 	}
 
 	// Optionally remove an images extension before hashing.
@@ -58,21 +62,10 @@ func NewRoboHash(input string, hashCount int, ignoreExt bool) *RoboHash {
 
 	robohash.CreateHashes(hashCount)
 
-	// Get the absolute path to the executable
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	exeDir := filepath.Dir(exePath)
-
-	resourceDir := filepath.Join(exeDir, "img", "robo")
-	robohash.ResourceDir = resourceDir
-
 	// Load Directories
-	robohash.Sets = utils.ListDir(filepath.Join(robohash.ResourceDir, "sets"))
-	robohash.BgSets = utils.ListDir(filepath.Join(robohash.ResourceDir, "backgrounds"))
-	robohash.Colors = utils.ListDir(filepath.Join(robohash.ResourceDir, "sets", "set1"))
+	robohash.Sets = utils.ListDir(robohash.FS, "img/robo/sets")
+	robohash.BgSets = utils.ListDir(robohash.FS, "img/robo/backgrounds")
+	robohash.Colors = utils.ListDir(robohash.FS, "img/robo/sets/set1")
 
 	return robohash
 }
@@ -112,13 +105,24 @@ func (r *RoboHash) GetListOfFiles(path string) []string {
 	var chosenFiles []string
 
 	// Get a list of all subdirectories
-	directories := utils.ListDir(path)
+	directories := utils.ListDir(r.FS, path)
 
 	// Go through each directory in the list, and choose one file from each.
 	// Add this file to our master list of robotparts.
 	for _, dir := range directories {
-		dirPath := filepath.Join(path, dir)
-		files, _ := filepath.Glob(filepath.Join(dirPath, "*"))
+		fullPath := path + "/" + dir
+		entries, err := fs.ReadDir(r.FS, fullPath)
+		if err != nil {
+			continue
+		}
+
+		var files []string
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				files = append(files, fullPath+"/"+entry.Name())
+			}
+		}
+
 		sort.Strings(files)
 
 		if len(files) > 0 {
@@ -262,7 +266,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 
 		First, we'll get a list of parts of our robot.
 	*/
-	dir := r.ResourceDir + "/sets/" + roboset
+	dir := "img/robo/sets/" + roboset
 	roboparts := r.GetListOfFiles(dir)
 
 	// Now that we've sorted them by the first number, we need to sort each sub-category by the second.
@@ -272,8 +276,11 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 
 	background := ""
 	if bgset != "" {
-		path := r.ResourceDir + "/backgrounds/" + bgset
-		backgrounds, _ := os.ReadDir(path)
+		path := "img/robo/backgrounds/" + bgset
+		backgrounds, err := fs.ReadDir(r.FS, path)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		var bgList []string
 		for _, bg := range backgrounds {
@@ -287,9 +294,15 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 	// Assemble robot parts
 	var roboImg image.Image
 	for i, part := range roboparts {
-		img, err := imaging.Open(part)
+		file, err := r.FS.Open(part)
 		if err != nil {
 			log.Fatal(err)
+		}
+		defer file.Close()
+
+		img, errDecode := imaging.Decode(file)
+		if errDecode != nil {
+			log.Fatal(errDecode)
 		}
 		img = imaging.Resize(img, 1024, 1024, imaging.Lanczos)
 
@@ -302,10 +315,17 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 
 	// Apply background if available
 	if background != "" {
-		bgImg, err := imaging.Open(background)
+		bgFile, err := r.FS.Open(background)
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer bgFile.Close()
+
+		bgImg, errDecode := imaging.Decode(bgFile)
+		if errDecode != nil {
+			log.Fatal(errDecode)
+		}
+
 		bgImg = imaging.Resize(bgImg, 1024, 1024, imaging.Lanczos)
 		roboImg = Overlay(bgImg, roboImg)
 	}

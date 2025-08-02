@@ -13,18 +13,6 @@ This project is a port of [Robohash](https://github.com/e1ven/Robohash) to Go. F
 
 ## Installation Guide
 
-Follow the steps below to install, build, and package the project.
-
-### Prerequisites
-
-Ensure you have the following installed:
-
-- [Go](https://golang.org/dl/) (Version 1.23 or above)
-- [Make](https://www.gnu.org/software/make/)
-- [tar](https://www.gnu.org/software/tar/) (for creating tar archives)
-
-### Installation
-
 1. Clone the Repository
 2. Build the Project
 

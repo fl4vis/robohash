@@ -1,13 +1,13 @@
 package utils
 
 import (
+	"io/fs"
 	"log"
-	"os"
 	"sort"
 )
 
-func ListDir(path string) []string {
-	files, err := os.ReadDir(path)
+func ListDir(fsys fs.FS, path string) []string {
+	files, err := fs.ReadDir(fsys, path)
 	if err != nil {
 		log.Fatal(err)
 	}
