@@ -97,13 +97,8 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 
 <div align="center">
 
-### Set 1: Original Robots
 <img src="docs/robo1.png">
-
-### Set 2: Monsters  
 <img src="docs/robo2.png">
-
-### Set 4: Cats
 <img src="docs/robo3.png">
 
 </div>
