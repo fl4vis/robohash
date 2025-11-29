@@ -30,15 +30,15 @@ tar -xvzf robohash.tar.gz
 
 ### Construction Settings
 
-| Parameter    | Type     | Description                                                                                    |
-|:-------------|:---------|:-----------------------------------------------------------------------------------------------|
-| `-input`     | `string` | **Required**. Input to be hashed                                                               |
-| `-set`       | `string` | 1 -> Robot<br/>2 -> Monster<br/>3 -> Robot2<br/>4 -> Cat<br/>5 -> Person<br/>any               |
-| `-color`     | `string` | Only for **set1**<br/>[blue, brown, green, grey,  orange, pink, purple, red, white, yellow]    |
-| `-extension` | `string` | File to be saved (datauri will not be saved to file)<br/>  [png, jpg, jpeg, gif, ppm, datauri] |
-| `-bgset`     | `string` | Adds a background<br/> [1, 2, any]                                                             |
-| `-sizex`     | `int`    | X size in px                                                                                   |
-| `-sizey`     | `int`    | Y size in px                                                                                   |
+| Parameter    | Type     | Description                                                                                          |
+|:-------------|:---------|:-----------------------------------------------------------------------------------------------------|
+| `-input`     | `string` | **Required**. Input to be hashed                                                                     |
+| `-set`       | `string` | 1 -> Robot<br/>2 -> Monster<br/>3 -> Robot2<br/>4 -> Cat<br/>5 -> Person<br/>any                     |
+| `-color`     | `string` | Only for **set1**<br/>[blue, brown, green, grey,  orange, pink, purple, red, white, yellow]          |
+| `-extension` | `string` | File to be saved (datauri will not be saved to file)<br/>  [png, jpg, jpeg, gif, ppm, datauri, webp] |
+| `-bgset`     | `string` | Adds a background<br/> [1, 2, any]                                                                   |
+| `-sizex`     | `int`    | X size in px                                                                                         |
+| `-sizey`     | `int`    | Y size in px                                                                                         |
 
 <br>
 

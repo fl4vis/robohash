@@ -354,6 +354,24 @@ func main() {
 		Value:       "png",
 	}
 
+	// Banner
+	flag.Usage = func() {
+		banner := `
+██████╗  ██████╗ ██████╗  ██████╗ ██╗  ██╗ █████╗ ███████╗██╗  ██╗
+██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗██║  ██║██╔══██╗██╔════╝██║  ██║
+██████╔╝██║   ██║██████╔╝██║   ██║███████║███████║███████╗███████║
+██╔══██╗██║   ██║██╔══██╗██║   ██║██╔══██║██╔══██║╚════██║██╔══██║
+██║  ██║╚██████╔╝██████╔╝╚██████╔╝██║  ██║██║  ██║███████║██║  ██║
+╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+
+RoboHash — Robot avatar generator
+
+Usage:
+`
+		fmt.Fprint(flag.CommandLine.Output(), banner)
+		flag.PrintDefaults()
+	}
+
 	// Flags
 	input := flag.String("input", "", "String to be hashed")
 	hashSlots := flag.Int("slots", 11, "Number of slots hash will be divided")
@@ -361,7 +379,7 @@ func main() {
 
 	set := flag.String("set", "any", "[1,5] || any")
 	color := flag.String("color", "", "Only when set1 selected -> [blue, brown, green, grey,  orange, pink, purple, red, white, yellow]")
-	flag.Var(&extension, "extension", "[png, jpg, jpeg, gif, ppm, datauri]")
+	flag.Var(&extension, "extension", "[png, jpg, jpeg, gif, ppm, datauri, webp]")
 	bgset := flag.String("bgset", "", "[1,2] || any")
 	sizex := flag.Int("sizex", 300, "size x")
 	sizey := flag.Int("sizey", 300, "size y")
