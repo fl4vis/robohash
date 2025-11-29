@@ -5,10 +5,16 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	"image/draw"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"os"
+
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
+
+	_ "golang.org/x/image/webp"
 )
 
 // saveImage saves an image.Image in the specified format
@@ -38,6 +44,8 @@ func SaveImage(filename, format string, img image.Image) error {
 		return gif.Encode(file, img, nil)
 	case "ppm":
 		return encodePPM(file, img)
+	case "webp":
+		return encodeWep(file, img)
 	default:
 		return fmt.Errorf("unsupported format: %s", format)
 	}
@@ -73,4 +81,26 @@ func saveDataURI(img image.Image) (string, error) {
 	// _, err := file.WriteString(dataURI)
 	// return err
 	return dataURI, nil
+}
+
+func encodeWep(w *os.File, img image.Image) error {
+	bounds := img.Bounds()
+
+	// Convert image to RGBA
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
+
+	// Encode with libwebp quality settings
+	// Quality: 0-100 (higher is better quality)
+	// You can adjust the quality parameter as needed
+	quality := float32(90)
+
+	// Create WebP encoder options
+	options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, quality)
+	if err != nil {
+		return err
+	}
+
+	// Encode to WebP
+	return webp.Encode(w, rgba, options)
 }

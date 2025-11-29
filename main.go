@@ -16,6 +16,8 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/fl4vis/robohash/utils"
+
+	_ "golang.org/x/image/webp"
 )
 
 //go:embed img/robo/*
@@ -146,7 +148,7 @@ func (r *RoboHash) RemoveExts(str string) string {
 	*/
 
 	str = strings.ToLower(str)
-	suffixes := []string{".png", ".gif", ".jpg", ".bmp", ".jpeg", ".ppm", ".datauri"}
+	suffixes := []string{".png", ".gif", ".jpg", ".bmp", ".jpeg", ".ppm", ".datauri", ".webp"}
 
 	for _, suffix := range suffixes {
 		if strings.HasSuffix(str, suffix) {
@@ -348,7 +350,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 
 func main() {
 	extension := utils.ExtensionsType{
-		ValidValues: []string{"png", "jpg", "jpeg", "gif", "ppm", "datauri"},
+		ValidValues: []string{"png", "jpg", "jpeg", "gif", "ppm", "datauri", "webp"},
 		Value:       "png",
 	}
 
