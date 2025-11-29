@@ -117,18 +117,6 @@ RoboHash generates avatars deterministically:
 
 ---
 
-<div align="center">
-
-**Support this project:**
-
-<a href="https://paypal.me/flavflamenco?locale.x=en_US&country.x=EC" target="_blank">
-  <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate with PayPal">
-</a>
-
-</div>
-
----
-
 ## 🙏 Attribution
 
 This project uses artwork from [Robohash.org](https://robohash.org):
@@ -154,5 +142,13 @@ This project is licensed under the [MIT License](LICENSE)
 **Made with ❤️ and Go**
 
 ⭐ Star this repo if you find it useful!
+
+<br>
+
+**Support this project:**
+
+<a href="https://paypal.me/flavflamenco?locale.x=en_US&country.x=EC" target="_blank">
+  <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate with PayPal">
+</a>
 
 </div>
