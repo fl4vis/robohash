@@ -69,27 +69,27 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 
 ### 🎨 Appearance Options
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `-set` | string | `any` | Avatar style:<br/>• `1` - Robots (original)<br/>• `2` - Monsters<br/>• `3` - Robots (alt)<br/>• `4` - Cats<br/>• `5` - Humans<br/>• `any` - Random |
-| `-color` | string | - | **Set 1 only**:<br/>`blue`, `brown`, `green`, `grey`, `orange`, `pink`, `purple`, `red`, `white`, `yellow` |
-| `-bgset` | string | - | Background:<br/>• `1` - Background set 1<br/>• `2` - Background set 2<br/>• `any` - Random |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-set`   | `any` | Avatar style:<br/>• `1` - Robots (original)<br/>• `2` - Monsters<br/>• `3` - Robots (alt)<br/>• `4` - Cats<br/>• `5` - Humans<br/>• `any` - Random |
+| `-color` | - | **Set 1 only**:<br/>`blue`, `brown`, `green`, `grey`, `orange`, `pink`, `purple`, `red`, `white`, `yellow` |
+| `-bgset` | - | Background:<br/>• `1` - Background set 1<br/>• `2` - Background set 2<br/>• `any` - Random |
 
 ### 📐 Output Options
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `-extension` | string | `png` | Format: `png`, `jpg`, `jpeg`, `gif`, `webp`, `ppm`, `datauri` |
-| `-sizex` | int | `300` | Width in pixels |
-| `-sizey` | int | `300` | Height in pixels |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-extension` |  `png` | Format: `png`, `jpg`, `jpeg`, `gif`, `webp`, `ppm`, `datauri` |
+| `-sizex` | `300` | Width in pixels |
+| `-sizey` | `300` | Height in pixels |
 
 ### 🔧 Input Options
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `-input` | string | **required** | String to hash into avatar |
-| `-ignoreExt` | bool | `true` | Ignore file extensions when hashing |
-| `-slots` | int | `11` | Hash slot divisions ⚠️ *Advanced option* |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-input` | **required** | String to hash into avatar |
+| `-ignoreExt` | `true` | Ignore file extensions when hashing |
+| `-slots` | `11` | Hash slot divisions ⚠️ *Advanced option* |
 
 ---
 
@@ -98,13 +98,13 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 <div align="center">
 
 ### Set 1: Original Robots
-<img src="docs/robo1.png" width="200" alt="Robot 1">
+<img src="docs/robo1.png">
 
 ### Set 2: Monsters  
-<img src="docs/robo2.png" width="200" alt="Monster">
+<img src="docs/robo2.png">
 
 ### Set 4: Cats
-<img src="docs/robo3.png" width="200" alt="Cat">
+<img src="docs/robo3.png">
 
 </div>
 
