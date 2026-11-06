@@ -16,8 +16,6 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/fl4vis/robohash/utils"
-
-	_ "golang.org/x/image/webp"
 )
 
 //go:embed img/robo/*
@@ -148,7 +146,7 @@ func (r *RoboHash) RemoveExts(str string) string {
 	*/
 
 	str = strings.ToLower(str)
-	suffixes := []string{".png", ".gif", ".jpg", ".bmp", ".jpeg", ".ppm", ".datauri", ".webp"}
+	suffixes := []string{".png", ".gif", ".jpg", ".bmp", ".jpeg", ".ppm", ".datauri"}
 
 	for _, suffix := range suffixes {
 		if strings.HasSuffix(str, suffix) {
@@ -350,7 +348,7 @@ func (r *RoboHash) Assemble(roboset, robocolor, format, bgset string, sizex, siz
 
 func main() {
 	extension := utils.ExtensionsType{
-		ValidValues: []string{"png", "jpg", "jpeg", "gif", "ppm", "datauri", "webp"},
+		ValidValues: []string{"png", "jpg", "jpeg", "gif", "ppm", "datauri"},
 		Value:       "png",
 	}
 
@@ -379,7 +377,7 @@ Usage:
 
 	set := flag.String("set", "any", "[1,5] || any")
 	color := flag.String("color", "", "Only when set1 selected -> [blue, brown, green, grey,  orange, pink, purple, red, white, yellow]")
-	flag.Var(&extension, "extension", "[png, jpg, jpeg, gif, ppm, datauri, webp]")
+	flag.Var(&extension, "extension", "[png, jpg, jpeg, gif, ppm, datauri]")
 	bgset := flag.String("bgset", "", "[1,2] || any")
 	sizex := flag.Int("sizex", 300, "size x")
 	sizey := flag.Int("sizey", 300, "size y")

@@ -25,7 +25,7 @@ A Go port of [Robohash](https://github.com/e1ven/Robohash) — turn any string i
 
 - 🎨 **5 Different Sets**: Robots, monsters, cats, and human avatars
 - 🎭 **10 Color Schemes**: For Set 1 robots
-- 📦 **Multiple Formats**: PNG, JPG, GIF, WebP, and Data URI
+- 📦 **Multiple Formats**: PNG, JPG, GIF, and Data URI
 - 🎯 **Deterministic**: Same input always produces the same avatar
 - ⚡ **Fast**: Built with Go for maximum performance
 - 🖼️ **Custom Backgrounds**: Optional background layers
@@ -60,7 +60,7 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 
 ### Advanced Example
 ```bash
-./robohash -input "user@example.com" -set 1 -color blue -bgset 1 -sizex 500 -sizey 500 -extension webp
+./robohash -input "user@example.com" -set 1 -color blue -bgset 1 -sizex 500 -sizey 500 -extension png
 ```
 
 ---
@@ -79,7 +79,7 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-extension` |  `png` | Format: `png`, `jpg`, `jpeg`, `gif`, `webp`, `ppm`, `datauri` |
+| `-extension` |  `png` | Format: `png`, `jpg`, `jpeg`, `gif`, `ppm`, `datauri` |
 | `-sizex` | `300` | Width in pixels |
 | `-sizey` | `300` | Height in pixels |
 
