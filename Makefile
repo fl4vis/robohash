@@ -1,23 +1,29 @@
-APP_NAME=robohash
-BUILD_DIR=build
-TAR_FILE=$(APP_NAME).tar.gz
-SRC_DIR=./img
+APP_NAME := robohash
+BIN_DIR := bin
+CMD := ./cmd
 
-# Default target
-all: build tar
+.PHONY: all build cross-build build-linux build-darwin build-windows test clean
 
-# Build the Go binary
+all: build
+
 build:
-	@echo "Building $(APP_NAME)..."
-	@mkdir -p $(BUILD_DIR)
-	@go build -o $(BUILD_DIR)/$(APP_NAME) main.go
+	@mkdir -p $(BIN_DIR)
+	go build -o $(BIN_DIR)/$(APP_NAME) $(CMD)
 
-# Archive binary
-tar: build
-	@echo "Creating tar archive..."
-	@tar -czf $(BUILD_DIR)/$(TAR_FILE) -C $(BUILD_DIR) $(APP_NAME)
+cross-build: build-linux build-darwin build-windows
 
-# Clean up build files
+build-linux:
+	@mkdir -p $(BIN_DIR)
+	GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(APP_NAME)-linux-amd64 $(CMD)
+
+build-darwin:
+	@mkdir -p $(BIN_DIR)
+	GOOS=darwin GOARCH=amd64 go build -o $(BIN_DIR)/$(APP_NAME)-darwin-amd64 $(CMD)
+	GOOS=darwin GOARCH=arm64 go build -o $(BIN_DIR)/$(APP_NAME)-darwin-arm64 $(CMD)
+
+build-windows:
+	@mkdir -p $(BIN_DIR)
+	GOOS=windows GOARCH=amd64 go build -o $(BIN_DIR)/$(APP_NAME)-windows-amd64.exe $(CMD)
+
 clean:
-	@echo "Cleaning up..."
-	@rm -rf $(BUILD_DIR)
+	rm -rf $(BIN_DIR)

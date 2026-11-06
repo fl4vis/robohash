@@ -25,7 +25,8 @@ A Go port of [Robohash](https://github.com/e1ven/Robohash) — turn any string i
 
 - 🎨 **5 Different Sets**: Robots, monsters, cats, and human avatars
 - 🎭 **10 Color Schemes**: For Set 1 robots
-- 📦 **Multiple Formats**: PNG, JPG, GIF, and Data URI
+- 📦 **Multiple Formats**: PNG, JPG, GIF, PPM, and Data URI
+- 🏴‍☠️ **One Piece avatars**: Deterministically select a character image
 - 🎯 **Deterministic**: Same input always produces the same avatar
 - ⚡ **Fast**: Built with Go for maximum performance
 - 🖼️ **Custom Backgrounds**: Optional background layers
@@ -40,10 +41,9 @@ A Go port of [Robohash](https://github.com/e1ven/Robohash) — turn any string i
 git clone https://github.com/fl4vis/robohash.git
 cd robohash
 
-# Build and extract
+# Build for your current platform
 make all
-cd build
-tar -xvzf robohash.tar.gz
+./bin/robohash -input "hello@example.com"
 ```
 
 ### Or Download Release
@@ -55,13 +55,25 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 
 ### Basic Example
 ```bash
-./robohash -input "hello@example.com"
+./bin/robohash -input "hello@example.com"
 ```
 
 ### Advanced Example
 ```bash
-./robohash -input "user@example.com" -set 1 -color blue -bgset 1 -sizex 500 -sizey 500 -extension png
+./bin/robohash -input "user@example.com" -set 1 -color blue -bgset 1 -sizex 500 -sizey 500 -extension png
 ```
+
+### One Piece Example
+```bash
+./bin/robohash -input "luffy@example.com" -type onepiece
+```
+
+### Cross-compile
+```bash
+make cross-build
+```
+
+Cross-compiled binaries are written to `bin/`.
 
 ---
 
@@ -74,6 +86,7 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 | `-set`   | `any` | Avatar style:<br/>• `1` - Robots (original)<br/>• `2` - Monsters<br/>• `3` - Robots (alt)<br/>• `4` - Cats<br/>• `5` - Humans<br/>• `any` - Random |
 | `-color` | - | **Set 1 only**:<br/>`blue`, `brown`, `green`, `grey`, `orange`, `pink`, `purple`, `red`, `white`, `yellow` |
 | `-bgset` | - | Background:<br/>• `1` - Background set 1<br/>• `2` - Background set 2<br/>• `any` - Random |
+| `-type` | `robo` | Avatar generator: `robo` or `onepiece` |
 
 ### 📐 Output Options
 
@@ -108,7 +121,7 @@ Download the latest release from [GitHub Releases](https://github.com/fl4vis/rob
 ## 📖 How It Works
 
 RoboHash generates avatars deterministically:
-1. Your input string is hashed using SHA-256
+1. Your input string is hashed using SHA-512
 2. The hash is split into segments (slots)
 3. Each slot determines a specific image layer
 4. Layers are composited together to create the final avatar
